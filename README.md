@@ -1,1 +1,1 @@
-# STAT40810
+# STAT40810 Stochastic Models
