@@ -1,0 +1,78 @@
+---
+title: "STAT40810: Stochastic Models : Assignment 3"
+author: "Ian Towey"
+date: "20 November 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(emplik)
+library(survival)
+data(myeloma)
+colnames(myeloma) <- c("time","vstatus","logBUN","HGB","platelet","age","logWBC","FRAC","logPBM","protein","SCALC")
+myeloma <- as.data.frame(myeloma)
+fit <- coxph(Surv(time,vstatus) ~ logBUN + HGB:platelet, data=myeloma)
+
+x <- c(4, 13, 3, 6, 4, 3, 1, 1, 10, 6, 6, 20, 3, 15)
+x.cencored <- c(1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1)
+N <- length(x)
+dat <- data.frame(time=x,status=x.cencored)
+survdat <- Surv(time=dat[,1],event=dat[,2])
+dat.fit <- survfit(survdat~1,se=TRUE)
+
+```
+
+## Question 1
+
+The model choosen that was: $$ Survival \sim logBUN + HGB*platelet$$. 
+
+The model was discovered by fitting each covariate separately reviewing significance of p-value at $\alpha$ = 0.05. Then adding interaction pairs and again reviewing significance of p-value at $\alpha$ = 0.05. 
+
+```{r}
+summary(fit)
+```
+
+The model summary is displayed above. Things of note in this the output include:
+
+* The number of patients at the start of the study was 65.
+* At the end of the study there was 48 events, therefore 17 right-cencored patients.
+* Covariate **logBUN** (log BUN at diagnosis) and interaction covariates **HGB** (hemoglobin at diagnosis) * **PLATELET** (platelets at diagnosis: 0=abnormal, 1=normal) are significient at $\alpha$ = 0.05 level.
+* The level of BUN at diagnosis time increases the hazard by 1.5 per month
+* The level of interaction covariate slightly decreases the hazard 
+* The “Concordance” value, is a measure of the predictive discrimination of a covariate.
+* The “Rsquared” value, reflects the improvement in the fit of the model with the covariate compared to the null model.
+* The hypothesis tests Likelihood ratio test, Wald test and Score test all test the hypothesis that $H_{0} : \beta = 0$ at the $\alpha = 0.05$ level. The results of these there test shows the test statistic for all three tests are much greater than 0 so we reject the $H_{0}$  
+
+```{r , echo=FALSE}
+plot(survfit(fit), lty=c(1,3,3), ylab = "Survival Probability", xlab = "Months", bty="L",col = c("blue", "green","red"))
+legend(50,1,c("Survival Prediction","Lower","Upper"), lty=c(1,3,3), bty = "n",col = c("blue", "green","red")) 
+```
+
+Analysis of the survival function plot above, we see that the media survival time (in months) for a patient is approximately 20 months. The probability of survival for a patient after 80 months is about 10%
+
+## Question 2
+
+```{r}
+print(survdat)
+```
+(a)
+Kaplan-Meier estimate of the survival function and curve plot of the survival function.
+```{r}
+
+summary(dat.fit)
+
+plot(dat.fit, lty=c(1,3,3), ylab = "Survival Probability", xlab = "Weeks", bty="L",col = c("blue", "green","red"), sub="Kaplan-Meier Curve with Standard Errors")
+legend(12,1,c("Survival Prediction","Lower","Upper"), lty=c(1,3,3), bty = "n",col = c("blue", "green","red")) 
+```
+
+
+(b) Comparison of the Kaplan-Meier v Nelson-Aalen estimators
+
+```{r}
+plot(stepfun(1:7,cumprod(1-dat.fit$n.event/dat.fit$n.risk)), main="", sub="Kaplan-Meier v Nelson-Aalen curves",xlab = "weeks", ylab="Survival Probability")
+lines(stepfun(1:7,cumprod(exp(-dat.fit$n.event/dat.fit$n.risk))), col='red')
+```
+
+The Kaplan-Meier estimator is unbiased for the survival function. The Nelson–Aalen estimator is unbiased
+for cumulative hazard. The Nelson–Aalen estimator is always larger than negative log of the Kaplan– Meier estimator. 
