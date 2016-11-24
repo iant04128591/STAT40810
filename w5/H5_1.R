@@ -35,6 +35,8 @@ persp(x1g,x2g,fg,col="lightblue")
 contour(x1g,x2g,fg)
 
 # Use the rgl library to produce an interactive plot
+#sudo apt-get install libglu1-mesa-dev
+install.packages('rgl')
 library(rgl)
 
 # Plot the function f(x)

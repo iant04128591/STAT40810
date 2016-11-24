@@ -22,7 +22,7 @@ f<-function(x)
 # Simulate error terms e
 # Let y=f(x)+e
 e <- rnorm(200,0,1/4)
-y <- apply(x,1,f)+e
+y <- apply(x,1,f)+e #apply function 'f' to each row of matrix 'x' and add 'e' to each of value
 
 # Store the response variable as ynew
 ynew <- y

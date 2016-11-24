@@ -28,6 +28,7 @@ points(xs,f(xs),type="l",col="red")
 library(mgcv)
 
 # Fit smoothing spline
+# spar parameter = 'lambda'
 fit.sp <- smooth.spline(x,y,spar=1)
 
 # Plot the fit
