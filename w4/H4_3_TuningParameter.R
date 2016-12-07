@@ -29,8 +29,10 @@ library(mgcv)
 
 # Set up a vector of values for the tuning parameter
 # Set up a vector to store the results
-svec <- seq(0,1,length=51)
-MSEvec <- rep(NA, 51)
+##lambda
+svec <- seq(0,1,length=51) 
+
+MSEvec <- rep(NA, 51)    
 
 for (i in 1:51)
 {
