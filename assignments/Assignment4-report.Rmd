@@ -1,0 +1,54 @@
+---
+title: "Assignment4"
+author: "Ian Towey"
+date: "14 December 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(BayesLCA)
+library(magrittr)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Q1
+
+# (a)
+Yes, the politicians seem to form clusters with TD's voting along party lines
+
+# (b)
+
+```{r}
+rm(list=ls())
+load("/home/ian/Documents/git/STAT40810/assignments/dailvotes.Rdata", env <- new.env())
+votes <- get('votes', env)
+yes <- 1*(votes[,-(1:3)]=="y" )
+group_size<-c()
+aic <- c()
+bic <- c()
+for(i in  1:11){
+  fit <- blca.em(yes, i, verbose = FALSE)
+  group_size <- c(group_size, i)
+  aic <- c(aic, fit$AIC)
+  bic <- c(bic, fit$BIC)
+}
+df <- data.frame(group_size=group_size, aic=aic,bic=bic)
+df %>% filter(or(aic == max(aic),bic == max(bic)))
+
+```
+Based on the AIC and BIC scores different cluster sizes could be argued for.
+
+The BIC score is maximised when cluster size is 3. The AIC score is maximised when the cluster size is 8.
+
+The plot of the cluster of size 3 shows a very clear separation within the group voting behaviour. Group 2 either voted against or abstained from voting, this is usually minority parties on the extremes of the political divide. Groups 1 and 3 are almost the inverse of one another with there voting patterns. Since Group 1 is larger than group 3, it is probably made up mainly of the parties in Government. The items voted for by Group 1 (probabilities close to 1) are most likely legislation they brought to the Dail which was voted agianst by both groups 2 and 3. The items voted for by Group 3 are most likely bills they produced whoch were always voted strongly against by Groups  1 and 2. Group 3 is most likely the main opposition party/grouping    
+
+```{r, echo=FALSE}
+yes %>% blca.em(., 3, verbose = FALSE) %>% plot
+```
+
+The plot of the cluster of size 8 is more complex to explain, but the different party voting patterns are still evident , with group 5 and 6 being reletively similar but are opposites of groups 2, 3, 4 which are similar, these could represent left / right groupings, group 1 comprises TD' who are negative to all legislation. Groups 7 and 8 most likely independent not bound by party position and are a little bit more dispersed in there voting pattern.
+
+```{r, echo=FALSE}
+yes %>% blca.em(., 8, verbose = FALSE) %>% plot
+```
